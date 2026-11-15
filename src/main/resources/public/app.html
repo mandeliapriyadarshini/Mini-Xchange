@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini-Xchange</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="logo">▲</div> Mini-Xchange</div>
+    <nav class="nav">
+      <button data-tab="market" class="active">Market</button>
+      <button data-tab="portfolio">Portfolio</button>
+      <button data-tab="history">History</button>
+    </nav>
+    <div class="account">
+      <span title="Live connection"><span class="live-dot" id="liveDot"></span></span>
+      <div class="value">
+        <small>Portfolio value</small>
+        <span class="num" id="topValue">–</span> <span class="num" id="topPnl"></span>
+      </div>
+      <div class="value"><small>Logged in as</small><b id="who"></b></div>
+      <button class="ghost small" id="logoutBtn">Log out</button>
+    </div>
+  </header>
+
+  <section class="tickers" id="tickers"></section>
+
+  <main>
+    <!-- ======================= MARKET TAB ======================= -->
+    <div id="tab-market" class="grid">
+      <div class="col">
+        <div class="panel">
+          <div class="stock-head">
+            <h2 id="selName">–</h2>
+            <span class="big num" id="selPrice">–</span>
+            <span class="num" id="selChange"></span>
+          </div>
+          <div class="stats">
+            <span>Open <b class="num" id="selOpen">–</b></span>
+            <span>High <b class="num" id="selHigh">–</b></span>
+            <span>Low <b class="num" id="selLow">–</b></span>
+            <span>Volume <b class="num" id="selVol">–</b></span>
+          </div>
+          <div class="chart-box"><canvas id="chart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>My open orders</h3></div>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>#</th><th>Stock</th><th>Side</th><th>Type</th><th class="r">Price</th><th class="r">Filled</th><th></th></tr></thead>
+              <tbody id="openOrders"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Recent trades (all stocks)</h3></div>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>Time</th><th>Stock</th><th class="r">Price</th><th class="r">Qty</th><th>Buyer</th><th>Seller</th></tr></thead>
+              <tbody id="recentTrades"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="panel">
+          <div class="panel-head"><h3>Place order · <span id="formSymbol"></span></h3></div>
+          <div class="side-toggle">
+            <button class="buy active" data-side="BUY">Buy</button>
+            <button class="sell" data-side="SELL">Sell</button>
+          </div>
+          <div class="type-toggle">
+            <label><input type="radio" name="otype" value="LIMIT" checked> Limit</label>
+            <label><input type="radio" name="otype" value="MARKET"> Market</label>
+          </div>
+          <label for="qty">Quantity (shares)</label>
+          <input id="qty" type="number" min="1" step="1" value="10">
+          <div id="priceWrap">
+            <label for="price">Limit price</label>
+            <input id="price" type="number" min="0.01" step="0.05">
+          </div>
+          <div class="summary">
+            <div><span class="muted">Estimated value</span><span class="num" id="estValue">–</span></div>
+            <div><span class="muted" id="availLabel">Available cash</span><span class="num" id="availValue">–</span></div>
+          </div>
+          <button id="submitOrder" class="buy">Buy</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Order book</h3><span class="muted" id="bookSymbol"></span></div>
+          <div class="book-head"><span>Price</span><span>Qty</span><span>Orders</span></div>
+          <div id="asks"></div>
+          <div class="spread" id="spread">–</div>
+          <div id="bids"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================= PORTFOLIO TAB ======================= -->
+    <div id="tab-portfolio" class="hidden">
+      <div class="cards">
+        <div class="card"><small>Total value</small><span class="num" id="pTotal">–</span></div>
+        <div class="card"><small>Profit / loss (vs ₹1,00,000 start)</small><span class="num" id="pPnl">–</span></div>
+        <div class="card"><small>Cash (available / reserved)</small><span class="num" id="pCash">–</span></div>
+        <div class="card"><small>Holdings value</small><span class="num" id="pHoldings">–</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Holdings</h3></div>
+        <table>
+          <thead><tr><th>Stock</th><th class="r">Shares</th><th class="r">Listed for sale</th><th class="r">Avg price</th><th class="r">Last price</th><th class="r">Value</th><th class="r">P / L</th></tr></thead>
+          <tbody id="holdings"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================= HISTORY TAB ======================= -->
+    <div id="tab-history" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>My trade history</h3>
+          <button id="exportBtn">Download CSV</button>
+        </div>
+        <table>
+          <thead><tr><th>Time</th><th>Stock</th><th>Side</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Value</th><th>Counterparty</th></tr></thead>
+          <tbody id="myTrades"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div id="toasts"></div>
+
+  <!-- Chart.js (price chart library), loaded from a CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

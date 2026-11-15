@@ -1,0 +1,14 @@
+# build output
+target/
+out/
+*.class
+
+# runtime data (created when the app runs)
+data/exchange.db
+data/exports/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.DS_Store
